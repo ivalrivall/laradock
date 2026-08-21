@@ -1,6 +1,9 @@
 networks:
   frontend:
     driver: ${NETWORKS_DRIVER}
+  laradock_shared:
+    driver: bridge
+    name: laradock_shared
   backend:
     driver: ${NETWORKS_DRIVER}
 volumes:
