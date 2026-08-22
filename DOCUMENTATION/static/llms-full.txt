@@ -14622,7 +14622,7 @@ All settings live in `mongo-express/defaults.env`. Override any of them in your 
 | Variable | Default | What it does |
 |---|---|---|
 | `ME_VERSION` | `1.0.2` | Upstream `mongo-express` image tag passed as a build arg (pinned to the current stable release). |
-| `ME_PORT` | `8081` | Host-side port the UI is published on (`host:container`, container port is fixed at `8081` upstream). |
+| `ME_PORT` | `8087` | Host-side port the UI is published on (`host:container`, container port is fixed at `8081` upstream). Defaults to `8087` to avoid colliding with `phpmyadmin`'s `8081`; set `ME_PORT=8081` in your root `.env` if you don't run phpmyadmin. |
 | `ME_CONFIG_MONGODB_SERVER` | `mongo` | Hostname the UI connects to. Defaults to the Laradock `mongo` service by container name. |
 | `ME_CONFIG_MONGODB_PORT` | `27017` | Port on `ME_CONFIG_MONGODB_SERVER`. |
 | `ME_CONFIG_MONGODB_URL` | _(unset)_ | Single-connection-string alternative to `MONGODB_SERVER`/`MONGODB_PORT`/`MONGODB_AUTH_*`. Useful for connecting to a remote MongoDB or to Amazon DocumentDB; should include credentials when auth is on (for example `mongodb://root:password@mongo:27017/?authSource=admin`). When set, it overrides the split vars. |
@@ -14702,7 +14702,7 @@ These are the `ME_CONFIG_OPTIONS_*` flags; all default to `false`. Handy for sta
 
 ## Access the UI
 
-With both `mongo` and `mongo-express` running, open [http://localhost:8081](http://localhost:8081) (or your `ME_PORT`). You'll be prompted for the mongo-express basic-auth credentials (`ME_CONFIG_BASICAUTH_USERNAME` / `ME_CONFIG_BASICAUTH_PASSWORD`); that login is separate from any MongoDB credentials. The UI then talks to the `mongo` service anonymously, which is the Laradock default.
+With both `mongo` and `mongo-express` running, open [http://localhost:8087](http://localhost:8087) (or your `ME_PORT`). You'll be prompted for the mongo-express basic-auth credentials (`ME_CONFIG_BASICAUTH_USERNAME` / `ME_CONFIG_BASICAUTH_PASSWORD`); that login is separate from any MongoDB credentials. The UI then talks to the `mongo` service anonymously, which is the Laradock default.
 
 From inside the UI, you can:
 
@@ -14790,7 +14790,7 @@ Then `./laradock rebuild mongo-express && ./laradock restart mongo-express`. The
 - **Aggregation fails with `MongoServerError: exceeded memory limit`.** Raise `ME_CONFIG_MONGODB_ALLOW_DISK_USE=true`, or pre-aggregate the data outside the UI.
 - **Large document edit fails with `PayloadTooLargeError`.** Raise `ME_CONFIG_REQUEST_SIZE` (in MB); default is `50`. Restart required.
 - **GridFS file won't upload.** Same fix as above — the default 50 MB body limit applies to GridFS uploads too.
-- **Port already in use on your host.** Another local service is bound to `8081`. Change `ME_PORT` in `.env` and `./laradock restart mongo-express`.
+- **Port already in use on your host.** Laradock's `phpmyadmin` also defaults to `8081`; both can't bind that port. If you run both, either change `ME_PORT` in `.env` (and `./laradock restart mongo-express`) or stop the other. Default `ME_PORT=8087` is chosen to avoid this conflict.
 - **Settings not picking up after a `.env` change.** Most `ME_CONFIG_*` values are baked into the image at build time. Run `./laradock rebuild mongo-express` after changing them. Pure runtime vars (`ME_PORT`) only need a restart.
 - **Cookie / session warnings in the container log.** Set `ME_CONFIG_SITE_COOKIESECRET` and `ME_CONFIG_SITE_SESSIONSECRET` to random strings (`openssl rand -hex 32`); mongo-express warns on startup if either is empty in any non-Localhost environment.
 

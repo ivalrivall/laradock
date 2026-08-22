@@ -1,4 +1,4 @@
-ARG ME_VERSION=1.0.0
+ARG ME_VERSION=1.0.2
 FROM mongo-express:${ME_VERSION}
 
 LABEL maintainer="Ival <ivalrival95@gmail.com>"
